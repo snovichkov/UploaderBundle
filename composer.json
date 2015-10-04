@@ -1,0 +1,41 @@
+{
+    "name": "cyberapp/uploader-bundle",
+    "description": "Symfony2 Uploader Bundle",
+    "keywords": ["Form", "Upload", "Ajax", "Oneup", "fileupload"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sergey Novichkov",
+            "email": "snovichkov@cyberapp.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "doctrine/orm": "~2.2",
+        "symfony/symfony": "~2.7",
+        "genemu/form-bundle": "~2.2",
+        "oneup/uploader-bundle": "~1.3",
+        "doctrine/doctrine-bundle": "~1.4",
+        "blueimp/jquery-file-upload": "~9.10",
+        "sensio/framework-extra-bundle": "~3.0"
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "blueimp/jquery-file-upload",
+                "version": "9.11.2",
+                "source": {
+                    "url": "https://github.com/blueimp/jQuery-File-Upload.git",
+                    "type": "git",
+                    "reference": "9.11.2"
+                }
+            }
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "CyberApp\\UploaderBundle\\": ""
+        }
+    }
+}

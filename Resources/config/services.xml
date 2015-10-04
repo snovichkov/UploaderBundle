@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Metadata -->
+        <service id="cyber_app.metadata.reader"
+                 class="CyberApp\UploaderBundle\Metadata\MetadataReader">
+            <argument type="service" id="doctrine"/>
+        </service>
+
+        <!-- Form -->
+        <service id="cyber_app.form.type.uploader"
+                 class="CyberApp\UploaderBundle\Form\Type\UploaderType">
+            <argument type="service" id="service_container" />
+            <argument type="string">CyberAppUploaderBundle</argument>
+            <tag name="form.type" alias="uploader" />
+        </service>
+        <service id="cyber_app.form.type_guesser.uploader"
+                 class="CyberApp\UploaderBundle\Form\Type\UploaderTypeGuesser">
+            <argument type="service" id="cyber_app.metadata.reader" />
+            <tag name="form.type_guesser"/>
+        </service>
+
+        <!-- Events -->
+        <service id="cyber_app.event_listener.remove_listener"
+                 class="CyberApp\UploaderBundle\EventListener\Doctrine\RemoveListener">
+            <argument type="service" id="service_container" />
+            <tag name="doctrine.event_subscriber" />
+        </service>
+        <service id="cyber_app.event_listener.upload_listener"
+                 class="CyberApp\UploaderBundle\EventListener\Doctrine\UploadListener">
+            <argument type="service" id="service_container" />
+            <tag name="doctrine.event_subscriber" />
+        </service>
+        <service id="cyber_app.event_listener.response_listener"
+                 class="CyberApp\UploaderBundle\EventListener\Kernel\ResponseListener">
+            <argument type="service" id="router" />
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <!-- Twig -->
+        <service id="cyber_app.twig.extension.uploader"
+                 class="CyberApp\UploaderBundle\Twig\Extension\UploaderExtension">
+            <argument type="service" id="service_container" />
+            <tag name="twig.extension" />
+        </service>
+    </services>
+</container>
