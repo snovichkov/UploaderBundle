@@ -137,12 +137,13 @@ class UploaderType extends AbstractType
                 'multiple' => false,
             ])
             ->setRequired(['endpoint', 'uri_prefix', ])
+            ->setNormalizer('uri_prefix', $uriPrefixNormalizer)
             ->setAllowedTypes([
                 'config' => 'array',
                 'messages' => 'array',
                 'multiple' => 'bool',
                 'endpoint' => 'string',
-                'uri_prefix' => ['null', 'string'],
+                'uri_prefix' => ['null', 'string', ],
             ])
             ->setNormalizer('uri_prefix', $uriPrefixNormalizer);
         ;

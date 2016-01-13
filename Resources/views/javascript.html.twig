@@ -1,0 +1,205 @@
+{% block uploader_javascript %}
+    {% if multiple %}
+        {{ block('uploader_multiple_javascript') }}
+    {% else %}
+        {{ block('uploader_single_javascript') }}
+    {% endif %}
+{% endblock %}
+
+{% block uploader_javascript_prototype %}
+    {% if multiple %}
+        {{ block('uploader_multiple_prototype') }}
+    {% else %}
+        {{ block('uploader_single_prototype') }}
+    {% endif %}
+{% endblock %}
+
+{% block uploader_single_javascript %}
+    <script type="text/javascript">
+        if (! jQuery) {
+            throw new Error("jQuery is not defined");
+        }
+
+        (function () {
+            "use strict";
+
+            if (! $.fn.fileupload) {
+                throw new Error("jQuery File Upload plugin is not defined");
+            }
+
+            $(function () {
+                var $widget = $('#{{ id }}_widget');
+
+                {% block uploader_single_prototype %}
+                    var messages = {{ messages|json_encode|raw }},
+                        fileValue = $("[type=hidden]", $widget),
+                        fileError = $("[data-behaviour=error]", $widget),
+                        fileUpload = $("[type=file]", $widget),
+                        fileRemove = $("[data-behaviour=remove]", $widget),
+                        fileDownload = $("[data-behaviour=download]", $widget),
+                        fileProgress = $("[data-behaviour=progress]", $widget);
+
+                    fileRemove.on('click', function (e) {
+                        e.preventDefault();
+
+                        fileError.hide();
+                        fileValue.val('');
+                        fileRemove.addClass('disabled');
+                        fileDownload.addClass('disabled');
+                    });
+
+                    fileUpload.fileupload($.extend(true, {{ options|json_encode|raw }}, {
+                        url: "{{ oneup_uploader_endpoint(endpoint) }}",
+                        {% if accept_file_types %}acceptFileTypes: {{ accept_file_types }},{% endif %}
+                        start: function () {
+                            fileError.hide();
+                            fileRemove.addClass('disabled');
+                            fileDownload.addClass('disabled');
+                            fileProgress.text("0 %").show();
+                        },
+                        progress: function (e, data) {
+                            fileProgress.text(parseInt(data.loaded / data.total * 100, 10) + " %");
+                        },
+                        done: function (e, data) {
+                            var files = data.result.files || [],
+                                    errors = [];
+
+                            for (var i = 0; i < files.length; i++) {
+                                if (files[i].error) {
+                                    errors.push(messages[files[i].error]);
+                                } else if (files[i].name) {
+                                    fileValue.val(files[i].name);
+                                    fileDownload
+                                        .attr('href', files[i].url || fileDownload.data('uri-prefix') + files[i].name);
+                                }
+                            }
+
+                            if (fileValue.val()) {
+                                fileRemove.removeClass('disabled');
+                                fileDownload.removeClass('disabled');
+                            }
+
+                            if (errors.length > 0) {
+                                fileError.html(errors.join("\n")).show();
+                            }
+
+                            fileProgress.hide();
+                        },
+                        fail: function () {
+                            fileError.text(messages["error.unknown"]).show();
+                            fileProgress.hide();
+                        },
+                        processfail: function (e, data) {
+                            if (! data.files.error) {
+                                return ;
+                            }
+
+                            var files = data.files || [],
+                                    errors = [];
+
+                            for (var i = 0; i < files.length; i++) {
+                                if (files[i].error) {
+                                    errors.push(files[i].error);
+                                }
+                            }
+
+                            if (errors.length > 0) {
+                                fileError.html(errors.join("\n")).show();
+                            }
+                        }
+                    }));
+                {% endblock %}
+            });
+        })(jQuery);
+    </script>
+{% endblock %}
+
+{% block uploader_multiple_javascript %}
+    <script type="text/javascript">
+        if (! jQuery) {
+            throw new Error("jQuery is not defined");
+        }
+
+        (function () {
+            "use strict";
+
+            if (! $.fn.fileupload) {
+                throw new Error("jQuery File Upload plugin is not defined");
+            }
+
+            $(function () {
+                var $widget = $("#{{ id }}_widget");
+
+                {% block uploader_multiple_prototype %}
+                    var messages = {{ messages|json_encode|raw }},
+                        uploader = $("[type=file]", $widget),
+                        uploaderFiles = $("[data-behaviour=files]", $widget);
+
+                    uploaderFiles.on('click', '[data-behaviour=remove]', function (e) {
+                        e.preventDefault();
+
+                        $(this).closest('[data-behaviour=container]').remove();
+                    });
+
+                    uploader.fileupload($.extend(true, {{ options|json_encode|raw }}, {
+                        url: "{{ oneup_uploader_endpoint(endpoint) }}",
+                        {% if accept_file_types %}acceptFileTypes: {{ accept_file_types }},{% endif %}
+                        change: function (e, data) {
+                            $.each(data.files, function (index, file) {
+                                file.id = 'file-' + (new Date()).getTime();
+                                file.container = $(uploaderFiles.data('prototype'));
+
+                                $('[data-behaviour=download]', file.container).addClass('disabled');
+                                $('[data-behaviour=remove]', file.container).addClass('disabled');
+
+                                uploaderFiles.append(file.container);
+                            });
+                        },
+                        progress: function (e, data) {
+                            $.each(data.files, function (index, file) {
+                                $('[data-behaviour=progress]', file.container)
+                                        .text(parseInt(data.loaded / data.total * 100, 10) + ' %');
+                            });
+                        },
+                        done: function (e, data) {
+                            $.each(data.result.files, function (index, file) {
+                                file.container = data.files[index].container;
+
+                                if (file.error) {
+                                    $('[data-behaviour=error]', file.container).text(file.error).show();
+                                } else if (file.name) {
+                                    $('[data-behaviour=value]', file.container).val(file.name);
+                                    $('[data-behaviour=download]', file.container)
+                                            .attr('href', file.url || uploaderFiles.data('uri-prefix') + file.name)
+                                            .removeClass('disabled');
+                                }
+
+                                $('[data-behaviour=remove]', file.container).removeClass('disabled');
+                                $('[data-behaviour=progress]', file.container).hide();
+                            });
+                        },
+                        fail: function (e, data) {
+                            $.each(data.files, function (index, file) {
+                                $('[data-behaviour=error]', file.container).text(messages["error.unknown"]).show();
+                                $('[data-behaviour=value]', file.container).remove();
+                                $('[data-behaviour=remove]', file.container).removeClass('disabled');
+                                $('[data-behaviour=progress]', file.container).hide();
+                            });
+                        },
+                        processalways: function (e, data) {
+                            var file = data.files[data.index];
+
+                            if (file.error) {
+                                $('[data-behaviour=error]', file.container).text(file.error).show();
+                                $('[data-behaviour=value]', file.container).remove();
+                                $('[data-behaviour=remove]', file.container).removeClass('disabled');
+                            } else {
+                                $('[data-behaviour=progress]', file.container).show();
+                            }
+                        }
+                    }));
+                {% endblock %}
+            });
+        })(jQuery);
+    </script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% block uploader_stylesheet %}
+    {% if multiple %}
+        {{ block('uploader_multiple_stylesheet') }}
+    {% else %}
+        {{ block('uploader_single_stylesheet') }}
+    {% endif %}
+{% endblock %}
+
+{% block uploader_single_stylesheet %}
+    <style type="text/css">
+        .uploader > span {
+            display: inline-block;
+            margin-right: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block uploader_multiple_stylesheet %}
+    <style type="text/css">
+        .uploader p:last-child {
+            margin: 0;
+        }
+    </style>
+{% endblock %}

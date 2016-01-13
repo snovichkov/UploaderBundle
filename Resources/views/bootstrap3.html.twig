@@ -1,0 +1,76 @@
+{% trans_default_domain 'CyberAppUploaderBundle' %}
+
+{% block uploader_widget %}
+    {% if multiple %}
+        {{ block('uploader_multiple_widget') }}
+    {% else %}
+        {{ block('uploader_single_widget') }}
+    {% endif %}
+{% endblock %}
+
+{% block uploader_single_widget %}
+    {% set href = false %}
+    {% if value and uploader_is_uploaded_file(endpoint, value) %}
+        {% set href = uri_prefix ~ value %}
+    {% elseif value %}
+        {% set href = url('view_orphanage_upload', {'endpoint': endpoint, 'file': value}) %}
+    {% endif %}
+
+    <div id="{{ id }}_widget" class="uploader has-error">
+        <span class="btn-group">
+            <a class="btn btn-primary fileinput-button">
+                {{ icon('plus') }}&nbsp;<span>{{ 'uploader.choice'|trans }}</span>
+                <input type="file" /></a>
+            <a data-behaviour="download" class="btn btn-info{% if not value %} disabled{% endif %}"
+               {% if href %}href="{{ href }}"{% endif %}
+               data-uri-prefix="{{ uri_prefix }}"
+               target="_blank">{{ icon('eye') }}&nbsp;{{ 'uploader.view'|trans }}</a>
+            <a data-behaviour="remove" class="btn btn-danger{% if not value %} disabled{% endif %}"
+               href="#">{{ icon('trash') }}&nbsp;{{ 'uploader.remove'|trans }}</a>
+        </span>
+        <span data-behaviour="progress" class="text-primary" style="display: none"></span>
+        <span data-behaviour="error" class="help-block" style="display: none"></span>
+
+        {{ block('hidden_widget') }}
+    </div>
+{% endblock %}
+
+{% block uploader_multiple_widget %}
+    <div id="{{ id }}_widget" class="uploader has-error">
+        <p><a class="btn btn-primary fileinput-button">
+                {{ icon('plus') }}&nbsp;<span>{{ 'uploader.choices'|trans }}</span>
+                <input type="file" multiple="multiple" /></a></p>
+
+        <div data-behaviour="files" data-uri-prefix="{{ uri_prefix }}"
+             data-prototype="{{ block('uploader_multiple_file')|e }}">
+            {% for file in value %}
+                {{ block('uploader_multiple_file') }}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block uploader_multiple_file %}
+    {% set file = file|default(null) %}
+
+    {% set href = false %}
+    {% if file and uploader_is_uploaded_file(endpoint, file)%}
+        {% set href = uri_prefix ~ file %}
+    {% elseif file %}
+        {% set href = url('view_orphanage_upload', {'endpoint': endpoint, 'file': file}) %}
+    {% endif %}
+
+    <p data-behaviour="container">
+        <span class="btn-group">
+            <a class="btn btn-info" data-behaviour="download"
+               {% if href %}href="{{ href }}"{% endif %}
+               target="_blank">{{ icon('eye') }}&nbsp;{{ 'uploader.view'|trans }}</a>
+            <a class="btn btn-danger" data-behaviour="remove"
+               href="#">{{ icon('trash') }}&nbsp;{{ 'uploader.remove'|trans }}</a>
+        </span>
+        <span data-behaviour="progress" class="text-primary" style="display: none">0 %</span>
+        <span data-behaviour="error" class="help-block" style="display: none"></span>
+        <input data-behaviour="value" type="hidden" name="{{ full_name }}"
+               {% if file %} value="{{ file }}"{% endif %} />
+    </p>
+{% endblock %}

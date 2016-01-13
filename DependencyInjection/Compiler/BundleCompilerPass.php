@@ -14,7 +14,9 @@ class BundleCompilerPass implements CompilerPassInterface
     {
         // get resources value
         $resources   = $container->getParameter('twig.form.resources');
-        $resources[] = 'CyberAppUploaderBundle:Form:bootstrap3.html.twig';
+        $resources[] = 'CyberAppUploaderBundle::bootstrap3.html.twig';
+        $resources[] = 'CyberAppUploaderBundle::javascript.html.twig';
+        $resources[] = 'CyberAppUploaderBundle::stylesheet.html.twig';
 
         // update resources value
         $container->setParameter('twig.form.resources', $resources);
