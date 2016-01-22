@@ -10,7 +10,7 @@
 
 {% block uploader_single_widget %}
     {% set href = false %}
-    {% if value and uploader_is_uploaded_file(endpoint, value) %}
+    {% if value %}
         {% set href = uri_prefix ~ value %}
     {% elseif value %}
         {% set href = url('view_orphanage_upload', {'endpoint': endpoint, 'file': value}) %}
@@ -54,7 +54,7 @@
     {% set file = file|default(null) %}
 
     {% set href = false %}
-    {% if file and uploader_is_uploaded_file(endpoint, file)%}
+    {% if file %}
         {% set href = uri_prefix ~ file %}
     {% elseif file %}
         {% set href = url('view_orphanage_upload', {'endpoint': endpoint, 'file': file}) %}

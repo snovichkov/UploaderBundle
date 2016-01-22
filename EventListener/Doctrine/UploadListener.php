@@ -60,31 +60,26 @@ class UploadListener extends BaseListener
                 continue;
             }
 
-            $value = PropertyAccess::createPropertyAccessor()->getValue($args->getEntity(), $field);
-            if (! $value) {
+            $value = (array) PropertyAccess::createPropertyAccessor()->getValue($args->getEntity(), $field);
+            $value = array_filter($value, 'strlen');
+            $value = array_map(function ($file) {
+                return pathinfo($file, PATHINFO_BASENAME);
+            }, $value);
+
+            if (empty($value)) {
                 continue;
             }
 
             $orphanageStorage = $this->container->get('oneup_uploader.orphanage.' . $annotation->endpoint);
 
-            if ($annotation->multiple) {
-                $files = [];
-                foreach ($orphanageStorage->getFiles() as $file) {
-                    if (in_array($file->getBasename(), (array) $value, true)) {
-                        $files[] = $file;
-                    }
-                }
-
-                $orphanageStorage->uploadFiles($files);
-                continue;
-            }
-
+            $files = [];
             foreach ($orphanageStorage->getFiles() as $file) {
-                if ($file->getBasename() === $value) {
-                    $orphanageStorage->uploadFiles([$file, ]);
-                    break;
+                if (in_array($file->getBasename(), $value, true)) {
+                    $files[] = $file;
                 }
             }
+
+            $orphanageStorage->uploadFiles($files);
         }
     }
 }

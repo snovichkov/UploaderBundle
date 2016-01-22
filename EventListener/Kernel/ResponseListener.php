@@ -39,17 +39,20 @@ class ResponseListener implements EventSubscriberInterface
      */
     public function postUpload(PostUploadEvent $event)
     {
+        /** @var \Symfony\Component\HttpFoundation\File\File $file */
         $file = $event->getFile();
+        $type = $event->getType();
+        $name = substr($file->getPathname(), strpos($file->getPathname(), $type) + strlen($type) + 1);
 
         $files = [[
             'size' => $file->getSize(),
-            'name' => $file->getBasename(),
+            'name' => $name,
         ]];
 
         $config = $event->getConfig();
         if (isset($config['use_orphanage']) && $config['use_orphanage']) {
             $files[0]['url'] = $this->router->generate('view_orphanage_upload', [
-                'endpoint' => $event->getType(),
+                'endpoint' => $type,
                 'file' => $file->getBasename(),
             ]);
         }
