@@ -15,7 +15,11 @@ class UploadController extends Controller
     const RESPONSE_SHARED_MAX_AGE = 63072000;
 
     /**
-     * @Route(path="/uploads/{endpoint}/{file}", name="view_orphanage_upload")
+     * @Route(
+     *     path="/uploads/{endpoint}/{file}",
+     *     requirements={"file": ".+"},
+     *     name="view_orphanage_upload"
+     * )
      *
      * @return Response
      */
@@ -29,7 +33,7 @@ class UploadController extends Controller
 
         $founded = false;
         foreach ($orphanageStorage->getFiles() as $file) {
-            if ($file->getBasename() === $request->get('file')) {
+            if ($file->getRelativePathname() === $request->get('file')) {
                 $founded = true;
                 continue;
             }

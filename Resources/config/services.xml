@@ -39,6 +39,13 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
+        <!-- Twig -->
+        <service id="cyber_app.twig.extension.uploader"
+                 class="CyberApp\UploaderBundle\Twig\Extension\UploaderExtension">
+            <argument type="service" id="service_container" />
+            <tag name="twig.extension" />
+        </service>
+
         <!-- Namer -->
         <service id="cyber_app.namer.uniqid" class="CyberApp\UploaderBundle\Uploader\Namer\UniqidNamer" />
     </services>
