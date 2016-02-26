@@ -35,7 +35,7 @@ class UploadController extends Controller
         foreach ($orphanageStorage->getFiles() as $file) {
             if ($file->getRelativePathname() === $request->get('file')) {
                 $founded = true;
-                continue;
+                break;
             }
         }
 
